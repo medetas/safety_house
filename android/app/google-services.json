@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "359724820610",
+    "project_id": "safety-house-d62ef",
+    "storage_bucket": "safety-house-d62ef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359724820610:android:628893b7c76ae782136c9b",
+        "android_client_info": {
+          "package_name": "com.example.safety_house"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "359724820610-4ckpjjisr7g56r8o79scbj0k0c0psk3p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQ1qphDJInT9r2iSIYnrCdPJFerBfP7LE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "359724820610-4ckpjjisr7g56r8o79scbj0k0c0psk3p.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "359724820610-58qni9c9l7c06vamo6r2e4n9guedcfb5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.safetyHouse"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
