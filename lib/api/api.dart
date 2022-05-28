@@ -24,12 +24,15 @@ class APIRepository {
         }),
       );
   }
-  Future<Response> logIn({String? username, String? password}) async {
+  Future<Response> logIn(
+      {String? username, String? password, required String deviceId}) async {
+    print(deviceId);
     return await Dio().post(
       'https://test.profcleaning.kz/api/v1/login',
       data: {
         "username": username,
         "password": password,
+        'app_id': deviceId,
       },
     );
   }
@@ -55,7 +58,52 @@ class APIRepository {
     return await _client.get('/v1/user');
   }
 
-  Future<Response> addHouse() async {
-    return await _client.get('/v1/houses');
+  Future<Response> addHouse(
+      {required String lat,
+      required String let,
+      required String address}) async {
+    return await _client.post('/v1/houses', data: {
+      "lat": lat,
+      "let": let,
+      "address": address,
+    });
+  }
+
+  Future<Response> deleteHouse({required int houseId}) async {
+    return await _client
+        .post('/v1/houses/$houseId', data: {'_method': 'delete'});
+  }
+
+  Future<Response> fetchNotifications() async {
+    return await _client.get('/v1/user/notifications');
+  }
+
+  Future<Response> updateUser(
+      {required int userId, required int status}) async {
+    return await _client.post(
+      '/v1/users/$userId',
+      data: {
+        // '_method': 'put',
+        'notification': '$status',
+      },
+    );
+  }
+
+  Future<Response> sendDeviceId(String deviceId) async {
+    Map<String, dynamic> map = {'app_number': deviceId};
+    FormData data = FormData.fromMap(map);
+    return await _client.post('/v1/devices', data: data);
+  }
+
+  Future<Response> getStatus(String deviceId) async {
+    Map<String, dynamic> map = {'filter[app_number]': deviceId};
+    // FormData data = FormData.fromMap(map);
+    return await _client.get('/v1/user/home', queryParameters: map);
+  }
+
+  Future<Response> sendStatus(int notificationId) async {
+    Map<String, dynamic> map = {'_method': 'put', 'state': 'normal'};
+    FormData data = FormData.fromMap(map);
+    return await _client.post('/v1/notifications/$notificationId', data: data);
   }
 }

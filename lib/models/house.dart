@@ -1,15 +1,19 @@
 import 'dart:convert';
 
+import 'package:safety_house/models/state.dart';
+
 class HouseModel {
   final int? id;
   final String? lat;
   final String? let;
   final String? address;
+  final StateModel states;
   HouseModel({
     this.id,
     this.lat,
     this.let,
     this.address,
+    required this.states,
   });
 
   HouseModel copyWith({
@@ -17,12 +21,14 @@ class HouseModel {
     String? lat,
     String? let,
     String? address,
+    StateModel? states,
   }) {
     return HouseModel(
       id: id ?? this.id,
       lat: lat ?? this.lat,
       let: let ?? this.let,
       address: address ?? this.address,
+      states: states ?? this.states,
     );
   }
 
@@ -32,6 +38,7 @@ class HouseModel {
       'lat': lat,
       'let': let,
       'address': address,
+      'states': states.toMap(),
     };
   }
 
@@ -41,6 +48,7 @@ class HouseModel {
       lat: map['lat'],
       let: map['let'],
       address: map['address'],
+      states: StateModel.fromMap(map['states']),
     );
   }
 
@@ -51,7 +59,7 @@ class HouseModel {
 
   @override
   String toString() {
-    return 'HouseModel(id: $id, lat: $lat, let: $let, address: $address)';
+    return 'HouseModel(id: $id, lat: $lat, let: $let, address: $address, states: $states)';
   }
 
   @override
@@ -62,11 +70,16 @@ class HouseModel {
         other.id == id &&
         other.lat == lat &&
         other.let == let &&
-        other.address == address;
+        other.address == address &&
+        other.states == states;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ lat.hashCode ^ let.hashCode ^ address.hashCode;
+    return id.hashCode ^
+        lat.hashCode ^
+        let.hashCode ^
+        address.hashCode ^
+        states.hashCode;
   }
 }

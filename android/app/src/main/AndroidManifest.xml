@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
    <application
-        android:label="safety_house"
+        android:label="Safety House"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

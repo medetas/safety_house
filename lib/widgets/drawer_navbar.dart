@@ -1,13 +1,21 @@
 // import 'package:eurasia_pass/presentation/screens/pass_screen.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safety_house/api/api.dart';
 import 'package:safety_house/constants/strings.dart';
+import 'package:safety_house/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:safety_house/logic/cubit/session_logic/session_cubit.dart';
 import 'package:safety_house/models/profile.dart';
 import 'package:safety_house/repositories/profile_repository.dart';
+import 'package:safety_house/screens/about_screen.dart';
 import 'package:safety_house/screens/home_screen.dart';
+import 'package:safety_house/screens/map_screen.dart';
+import 'package:safety_house/screens/notifications_screen.dart';
 import 'package:safety_house/screens/profile_screen.dart';
+import 'package:safety_house/screens/settings_screen.dart';
 import 'package:safety_house/widgets/loading_view.dart';
 import 'package:safety_house/widgets/page_error.dart';
 
@@ -43,74 +51,68 @@ class _CustomDrawerNavigationState extends State<CustomDrawerNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: ProfileRepository().fetchProfile(),
-      builder: (context, AsyncSnapshot<ProfileModel> snapshot) {
-        if (snapshot.hasData) {
-          return WillPopScope(
-            onWillPop: () async {
-              final isFirstRouteInCurrentTab =
-                  !await _navigatorKeys[_currentTab]!.currentState!.maybePop();
-              if (isFirstRouteInCurrentTab) {
-                // if not on the 'main' tab
-                if (_currentTab != Tabs.home) {
-                  // select 'main' tab
-                  _selectTab(Tabs.home);
-                  // back button handled by app
-                  return false;
+    return BlocProvider(
+      create: (context) =>
+          ProfileBloc(repository: APIRepository())..add(ProfileFetchEvent()),
+      child: WillPopScope(
+        onWillPop: () async {
+          final isFirstRouteInCurrentTab =
+              !await _navigatorKeys[_currentTab]!.currentState!.maybePop();
+          if (isFirstRouteInCurrentTab) {
+            // if not on the 'main' tab
+            if (_currentTab != Tabs.home) {
+              // select 'main' tab
+              _selectTab(Tabs.home);
+              // back button handled by app
+              return false;
+            }
+          }
+          // let system handle back button if we're on the first route
+          return isFirstRouteInCurrentTab;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 2,
+            leading: IconButton(
+              onPressed: () {
+                if (keyDrawer.currentState!.isDrawerOpen) {
+                  keyDrawer.currentState!.openEndDrawer();
+                } else {
+                  keyDrawer.currentState!.openDrawer();
                 }
-              }
-              // let system handle back button if we're on the first route
-              return isFirstRouteInCurrentTab;
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                elevation: 2,
-                leading: IconButton(
-                  onPressed: () {
-                    if (keyDrawer.currentState!.isDrawerOpen) {
-                      keyDrawer.currentState!.openEndDrawer();
-                    } else {
-                      keyDrawer.currentState!.openDrawer();
-                    }
-                  },
-                  icon: Icon(Icons.menu),
-                ),
-              ),
-              body: Scaffold(
-                key: keyDrawer,
-                drawer: DrawerNavigation(
-                  currentTab: _currentTab,
-                  onSelectTab: _selectTab,
-                ),
-                body: Stack(fit: StackFit.expand, children: <Widget>[
-                  //tabs
-                  _buildOffstageNavigator(Tabs.home, snapshot.data!),
-                  _buildOffstageNavigator(Tabs.profile, snapshot.data!),
-                  _buildOffstageNavigator(Tabs.history, snapshot.data!),
-                  _buildOffstageNavigator(Tabs.map, snapshot.data!),
-                  _buildOffstageNavigator(Tabs.settings, snapshot.data!),
-                  _buildOffstageNavigator(Tabs.about, snapshot.data!),
-                ]),
-              ),
+              },
+              icon: Icon(Icons.menu),
             ),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(body: CustomPageError());
-        }
-        return Scaffold(body: CustomPageLoader());
-      },
+            title: Text('${menu[_currentTab.index]}'),
+          ),
+          body: Scaffold(
+            key: keyDrawer,
+            drawer: DrawerNavigation(
+              currentTab: _currentTab,
+              onSelectTab: _selectTab,
+            ),
+            body: Stack(fit: StackFit.expand, children: <Widget>[
+              //tabs
+              _buildOffstageNavigator(Tabs.home),
+              _buildOffstageNavigator(Tabs.profile),
+              _buildOffstageNavigator(Tabs.history),
+              _buildOffstageNavigator(Tabs.map),
+              _buildOffstageNavigator(Tabs.settings),
+              _buildOffstageNavigator(Tabs.about),
+            ]),
+          ),
+        ),
+      ),
     );
   }
 
 //tab
-  Widget _buildOffstageNavigator(Tabs tabItem, ProfileModel userInfo) {
+  Widget _buildOffstageNavigator(Tabs tabItem) {
     return Offstage(
       offstage: _currentTab != tabItem,
       child: TabNavigator(
         navigatorKey: _navigatorKeys[tabItem],
         tabItem: tabItem,
-        userInfo: userInfo,
       ),
     );
   }
@@ -169,32 +171,28 @@ class TabNavigator extends StatelessWidget {
     Key? key,
     required this.navigatorKey,
     required this.tabItem,
-    required this.userInfo,
   }) : super(key: key);
   final GlobalKey<NavigatorState>? navigatorKey;
   final Tabs tabItem;
-  final ProfileModel userInfo;
 
   Map<String, WidgetBuilder> _routeBuilders(BuildContext context, Tabs tab) {
     return {
       TabNavigatorRoutes.root: (context) {
         switch (tab) {
           case Tabs.home:
-            return HomeScreen(userInfo: userInfo);
+            return const HomeScreen();
           case Tabs.profile:
-            return ProfileScreen(userInfo: userInfo);
+            return const ProfileScreen();
           case Tabs.history:
-            return ProfileScreen(userInfo: userInfo);
+            return const NotificationsScreen();
           case Tabs.map:
-            return ProfileScreen(userInfo: userInfo);
+            return const MapScreen();
           case Tabs.settings:
-            return ProfileScreen(userInfo: userInfo);
+            return const SettingsScreen();
           case Tabs.about:
-            return ProfileScreen(userInfo: userInfo);
+            return const AboutScreen();
           default:
-            return HomeScreen(
-              userInfo: userInfo,
-            );
+            return const HomeScreen();
         }
       },
     };

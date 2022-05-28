@@ -205,17 +205,20 @@ class AuthorizationScreen extends StatelessWidget {
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
       return state.formStatus is FormSubmitting
           ? CircularProgressIndicator()
-          : ElevatedButton(
+          : OutlinedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   context.read<LoginBloc>().add(LoginSubmitted());
                 }
               },
-              // style: ElevatedButton.styleFrom().merge(CustomBtnStyle.btnStyle),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+              ),
               child: Text(
                 'Войти',
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-                // style: const TextStyle().merge(CustomTextStyle.btnFontStyle),
+                style: TextStyle(
+                  color: primaryColor,
+                ),
               ),
             );
     });

@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:safety_house/api/api.dart';
 
@@ -18,9 +22,28 @@ class AuthRepository {
     required String password,
   }) async {
     try {
+      String deviceId = '';
+
+      deviceId = await FirebaseMessaging.instance.getToken() ?? '';
+      // messaging.onTokenRefresh.listen((newToken) async {
+      //   // Save newToken
+      //   print('Token: $newToken');
+      //   APIRepository().sendDeviceId(newToken);
+      // });
+
+      // var deviceInfo = DeviceInfoPlugin();
+      // if (Platform.isIOS) {
+      //   // import 'dart:io'
+      //   var iosDeviceInfo = await deviceInfo.iosInfo;
+      //   deviceId = iosDeviceInfo.identifierForVendor!; // unique ID on iOS
+      // } else if (Platform.isAndroid) {
+      //   var androidDeviceInfo = await deviceInfo.androidInfo;
+      //   deviceId = androidDeviceInfo.androidId!; // unique ID on Android
+      // }
       final result = await APIRepository().logIn(
         username: username.trim(),
         password: password.trim(),
+        deviceId: deviceId,
       );
       // final result = await Amplify.Auth.signIn(
       //   username: username.trim(),
